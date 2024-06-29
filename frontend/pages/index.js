@@ -37,7 +37,7 @@ const Home = () => {
   }
 
   return (
-    <div className="bg-primary dark:bg-darkBg text-secondary dark:text-darkText min-h-screen flex flex-col justify-between">
+    <div className="bg-primary dark:bg-darkBg text-darkBg dark:text-darkText min-h-screen flex flex-col justify-between">
       <Navbar />
       <main className="container mx-auto px-8">
         {/* Landing Section */}

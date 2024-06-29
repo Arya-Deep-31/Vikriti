@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Laila&display=swap');
+
+body {
+  font-family: 'Laila', sans-serif;
+}
+
+
+/* Example for glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Example for glimmer effect */
+.glimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.glimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation: glimmer 1.5s infinite;
+}
+
+@keyframes glimmer {
+  0% {
+    left: -75%;
+  }
+  50% {
+    left: 75%;
+  }
+  100% {
+    left: 75%;
+  }
+}

@@ -8,7 +8,7 @@ import '../styles/global.css';
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [backgroundImage, setBackgroundImage] = useState('/img1.webp');
+  const [backgroundImage, setBackgroundImage] = useState('/img.webp');
   const [textContent, setTextContent] = useState('Text for Image 1');
 
   const handleImageChange = (image, text) => {

@@ -1,63 +1,74 @@
 const Group = require('../models/Group');
+const fs = require('fs');
+const path = require('path');
 
-const createGroup = async (req, res) => {
-  const { name, code } = req.body;
+const filePath = path.join(__dirname, '../data/groups.json');
 
-  if (!name || !code) {
-    return res.status(400).json({ message: 'Please fill in all fields' });
-  }
-
-  if (code.length !== 6) {
-    return res.status(400).json({ message: 'Code must be 6 digits' });
-  }
-
-  try {
-    const existingGroup = await Group.findOne({ code });
-
-    if (existingGroup) {
-      return res.status(400).json({ message: 'Group with this code already exists' });
+// Load initial groups from JSON
+const loadGroups = () => {
+    try {
+        const data = fs.readFileSync(filePath);
+        return JSON.parse(data);
+    } catch (error) {
+        return [];
     }
-
-    const newGroup = new Group({ name, code });
-    await newGroup.save();
-
-    res.status(201).json(newGroup);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
 };
 
-const getGroups = async (req, res) => {
-  try {
-    const groups = await Group.find();
-    res.status(200).json(groups);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
+// Save groups to JSON
+const saveGroups = (groups) => {
+    fs.writeFileSync(filePath, JSON.stringify(groups, null, 2));
 };
 
-const joinGroup = async (req, res) => {
-  const { name, code } = req.body;
-
-  if (!name || !code) {
-    return res.status(400).json({ message: 'Please fill in all fields' });
-  }
-
-  try {
-    const group = await Group.findOne({ name, code });
-
-    if (!group) {
-      return res.status(400).json({ message: 'Group not found or incorrect code' });
+exports.getGroups = async (req, res) => {
+    try {
+        const groups = await Group.find();
+        res.json({ groups });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching groups' });
     }
-
-    res.status(200).json(group);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
 };
 
-module.exports = {
-  createGroup,
-  getGroups,
-  joinGroup
+exports.createGroup = async (req, res) => {
+    const { name, code } = req.body;
+    try {
+        if (!name || !code) {
+            return res.status(400).json({ message: 'Name and code are required' });
+        }
+        const group = new Group({ name, code });
+        await group.save();
+        res.status(201).json(group);
+    } catch (error) {
+        console.error('Error creating group:', error);
+        res.status(400).json({ message: 'Error creating group' });
+    }
+};
+
+exports.joinGroup = async (req, res) => {
+    const { code } = req.body;
+    try {
+        const group = await Group.findOne({ code });
+        if (group) {
+            res.status(200).json({ message: 'Joined group successfully' });
+        } else {
+            res.status(404).json({ message: 'Group not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error joining group' });
+    }
+};
+
+exports.deleteGroup = async (req, res) => {
+    const { code } = req.body;
+    try {
+        const group = await Group.findOneAndDelete({ code });
+        if (group) {
+            const groups = loadGroups().filter(g => g.code !== code);
+            saveGroups(groups);
+            res.status(200).json({ message: 'Group deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Group not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting group' });
+    }
 };
